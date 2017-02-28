@@ -8,7 +8,8 @@ tr:hover {
     background: #ddd;
 }
 
-th {
+thead th,
+thead td {
     padding: 10px 5px;
     border-bottom: 1px solid #ccc;
 }

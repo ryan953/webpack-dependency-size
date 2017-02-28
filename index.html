@@ -10,13 +10,14 @@
     <table cellpadding="0" cellspacing="0">
         <thead class="sticky">
             <tr>
-                <td colspan="9">
+                <td colspan="10">
                     <label for="filter-entry-point">Entry Point:</label><select id="filter-entry-point" onchange="updateFilters()"></select>
                     <div class="hoverTrigger">
                         Entry Point Graph
                         <ul class="hoverPanel" id="entry-graph"></ul>
                     </div>
                 </td>
+            </tr>
             <tr>
                 <th class="hoverTrigger">
                     <a href="#" onclick="sortBy('entry')">Entry</a>
@@ -106,6 +107,9 @@
                         <input type="number" id="filter-dependencyCount-max" onchange="updateFilters()" />
                     </div>
                 </th>
+            </tr>
+            <tr id="head-filters">
+                <td colspan="10"></td>
             </tr>
         </thead>
         <tbody id="data"></tbody>

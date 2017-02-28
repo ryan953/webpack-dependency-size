@@ -223,12 +223,17 @@ function renderEntrySelector(data) {
 }
 
 function renderTable() {
+    var filters = window._filters;
+    var filterSettings = window._filterSettings;
+    var sortBy = window._sortBy;
+    var sortDirection = window._sortDirection;
+
     if (!window._filterSettings.entryPoint) {
         return;
     }
 
-    var interestingEntries = window._entryParents[window._filterSettings.entryPoint]
-        .concat(window._filterSettings.entryPoint);
+    var interestingEntries = window._entryParents[filterSettings.entryPoint]
+        .concat(filterSettings.entryPoint);
     var data = [];
     interestingEntries.forEach(function(entryID) {
         data = data.concat(
@@ -241,10 +246,6 @@ function renderTable() {
                 })
         );
     });
-
-    var sortBy = window._sortBy;
-    var sortDirection = window._sortDirection;
-    var filters = window._filters;
 
     switch (sortBy) {
         case 'entry':
@@ -267,101 +268,141 @@ function renderTable() {
         data.reverse();
     }
 
-    var tBody = elem(
-        'tbody',
-        null,
-        data.filter(function(record) {
-            return filters.reduce(function(all, filter) {
-                return all && filter(record);
-            }, true);
-        }).map(function(record) {
-            return elem(
-                'tr',
-                null,
-                [
-                    elem('td', {class: 'hoverTrigger'}, [
-                        record.entryID,
-                        elem('div', {class: 'hoverPanel'}, record.entry),
-                    ]),
-                    elem('td', {class: 'hoverTrigger'}, [
-                        elem('a', {
-                            href: 'https://phabricator.pinadmin.com/diffusion/P/browse/master/' + record.niceName,
-                        }, record.niceName),
-                        elem('div', {class: 'hoverPanel'}, [record.name])
-                    ]),
+    $('head-filters').replaceWith(
+        elem(
+            'tr',
+            {id: 'head-filters'},
+            [
+                elem('td', null, [
+                    `/${filterSettings.entryNameContains ? filterSettings.entryNameContains.source : '*'}/`,
+                ]),
+                elem('td', null, [
+                    `/${filterSettings.nameContains ? filterSettings.nameContains.source : '*'}/`,
+                ]),
 
-                    elem(
-                        'td',
-                        {class: 'hoverTrigger'},
-                        [
-                            record.asyncParentCount,
-                            elem('ul', {class: 'hoverPanel'}, [
-                                record.asyncParents
-                                    .map(function(reason) {
-                                        return elem('li', null, `${reason.moduleIdentifier} (${reason.moduleId})`);
-                                    }),
-                            ]),
-                        ]
-                    ),
-                    elem(
-                        'td',
-                        {class: 'hoverTrigger'},
-                        [
-                            record.syncParentCount,
-                            elem('ul', {class: 'hoverPanel'}, [
-                                record.syncParents
-                                    .map(function(reason) {
-                                        return elem('li', null, `${reason.moduleIdentifier} (${reason.moduleId})`);
-                                    }),
-                            ]),
-                        ]
-                    ),
-                    elem(
-                        'td',
-                        {class: 'hoverTrigger'},
-                        [
-                            record.sharedParentCount,
-                            elem('ul', {class: 'hoverPanel'}, [
-                                record.sharedParents
-                                    .map(function(reason) {
-                                        return elem('li', null, `${reason.moduleIdentifier} (${reason.moduleId})`);
-                                    }),
-                            ]),
-                        ]
-                    ),
-                    elem('td', {class: 'hoverTrigger'} , [
-                        formatBytes(record.exclusive),
-                        elem('div', {class: 'hoverPanel'}, record.exclusive),
-                    ]),
-                    // elem('td', {class: 'hoverTrigger'}, [
-                    //     formatBytes(record.inclusive),
-                    //     elem('div', {class: 'hoverPanel'}, record.inclusive),
-                    // ]),
-                    elem('td', {class: 'hoverTrigger'}, [
-                        formatBytes(record.total),
-                        elem('div', {class: 'hoverPanel'}, record.total),
-                    ]),
-                    elem('td', {class: 'hoverTrigger'}, [
-                        formatBytes(record.weighted),
-                        elem('div', {class: 'hoverPanel'}, record.weighted),
-                    ]),
-                    elem(
-                        'td',
-                        {class: 'hoverTrigger'},
-                        [
-                            record.dependencies.length,
-                            elem('ul', {class: 'hoverPanel'}, [
-                                record.dependencies
-                                    .map(function(module) {
-                                        return elem('li', null, `${module.identifier} (${module.id})`);
-                                    }),
-                            ]),
-                        ]
-                    ),
-                ]
-            );
-        })
+                elem('td', null, [
+                    `${filterSettings.asyncParents.min} ${filterSettings.asyncParents.max}`,
+                ]),
+                elem('td', null, [
+                    `${filterSettings.syncParents.min} ${filterSettings.syncParents.max}`,
+                ]),
+                elem('td', null, [
+                    `${filterSettings.sharedParents.min} ${filterSettings.sharedParents.max}`,
+                ]),
+
+                elem('td', null, [
+                    `${filterSettings.exclusive.min} ${filterSettings.exclusive.max}`,
+                ]),
+
+                elem('td', null, [
+                    `${filterSettings.total.min} ${filterSettings.total.max}`,
+                ]),
+                elem('td', null, [
+                    `${filterSettings.weighted.min} ${filterSettings.weighted.max}`,
+                ]),
+
+                elem('td', null, [
+                    `${filterSettings.dependencyCount.min} ${filterSettings.dependencyCount.max}`,
+                ]),
+            ]
+        )
     );
-    tBody.setAttribute('id', 'data');
-    $('data').replaceWith(tBody);
+
+    $('data').replaceWith(
+        elem(
+            'tbody',
+            {id: 'data'},
+            data.filter(function(record) {
+                return filters.reduce(function(all, filter) {
+                    return all && filter(record);
+                }, true);
+            }).map(function(record) {
+                return elem(
+                    'tr',
+                    null,
+                    [
+                        elem('td', {class: 'hoverTrigger'}, [
+                            record.entryID,
+                            elem('div', {class: 'hoverPanel'}, record.entry),
+                        ]),
+                        elem('td', {class: 'hoverTrigger'}, [
+                            elem('a', {
+                                href: 'https://phabricator.pinadmin.com/diffusion/P/browse/master/' + record.niceName,
+                            }, record.niceName),
+                            elem('div', {class: 'hoverPanel'}, [record.name])
+                        ]),
+
+                        elem(
+                            'td',
+                            {class: 'hoverTrigger'},
+                            [
+                                record.asyncParentCount,
+                                elem('ul', {class: 'hoverPanel'}, [
+                                    record.asyncParents
+                                        .map(function(reason) {
+                                            return elem('li', null, `${reason.moduleIdentifier} (${reason.moduleId})`);
+                                        }),
+                                ]),
+                            ]
+                        ),
+                        elem(
+                            'td',
+                            {class: 'hoverTrigger'},
+                            [
+                                record.syncParentCount,
+                                elem('ul', {class: 'hoverPanel'}, [
+                                    record.syncParents
+                                        .map(function(reason) {
+                                            return elem('li', null, `${reason.moduleIdentifier} (${reason.moduleId})`);
+                                        }),
+                                ]),
+                            ]
+                        ),
+                        elem(
+                            'td',
+                            {class: 'hoverTrigger'},
+                            [
+                                record.sharedParentCount,
+                                elem('ul', {class: 'hoverPanel'}, [
+                                    record.sharedParents
+                                        .map(function(reason) {
+                                            return elem('li', null, `${reason.moduleIdentifier} (${reason.moduleId})`);
+                                        }),
+                                ]),
+                            ]
+                        ),
+                        elem('td', {class: 'hoverTrigger'} , [
+                            formatBytes(record.exclusive),
+                            elem('div', {class: 'hoverPanel'}, record.exclusive),
+                        ]),
+                        // elem('td', {class: 'hoverTrigger'}, [
+                        //     formatBytes(record.inclusive),
+                        //     elem('div', {class: 'hoverPanel'}, record.inclusive),
+                        // ]),
+                        elem('td', {class: 'hoverTrigger'}, [
+                            formatBytes(record.total),
+                            elem('div', {class: 'hoverPanel'}, record.total),
+                        ]),
+                        elem('td', {class: 'hoverTrigger'}, [
+                            formatBytes(record.weighted),
+                            elem('div', {class: 'hoverPanel'}, record.weighted),
+                        ]),
+                        elem(
+                            'td',
+                            {class: 'hoverTrigger'},
+                            [
+                                record.dependencies.length,
+                                elem('ul', {class: 'hoverPanel'}, [
+                                    record.dependencies
+                                        .map(function(module) {
+                                            return elem('li', null, `${module.identifier} (${module.id})`);
+                                        }),
+                                ]),
+                            ]
+                        ),
+                    ]
+                );
+            })
+        )
+    );
 }
