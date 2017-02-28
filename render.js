@@ -266,9 +266,8 @@ function renderTable() {
                             record.asyncParentCount,
                             elem('ul', {class: 'hoverPanel'}, [
                                 record.asyncParents
-                                    .map(pick('moduleIdentifier'))
-                                    .map(function(str) {
-                                        return elem('li', null, str);
+                                    .map(function(reason) {
+                                        return elem('li', null, `${reason.moduleIdentifier} (${reason.moduleId})`);
                                     }),
                             ]),
                         ]
@@ -280,9 +279,8 @@ function renderTable() {
                             record.syncParentCount,
                             elem('ul', {class: 'hoverPanel'}, [
                                 record.syncParents
-                                    .map(pick('moduleIdentifier'))
-                                    .map(function(str) {
-                                        return elem('li', null, [str]);
+                                    .map(function(reason) {
+                                        return elem('li', null, `${reason.moduleIdentifier} (${reason.moduleId})`);
                                     }),
                             ]),
                         ]
@@ -294,9 +292,8 @@ function renderTable() {
                             record.sharedParentCount,
                             elem('ul', {class: 'hoverPanel'}, [
                                 record.sharedParents
-                                    .map(pick('moduleIdentifier'))
-                                    .map(function(str) {
-                                        return elem('li', null, str);
+                                    .map(function(reason) {
+                                        return elem('li', null, `${reason.moduleIdentifier} (${reason.moduleId})`);
                                     }),
                             ]),
                         ]
@@ -324,9 +321,8 @@ function renderTable() {
                             record.dependencies.length,
                             elem('ul', {class: 'hoverPanel'}, [
                                 record.dependencies
-                                    .map(pick('identifier'))
-                                    .map(function(str) {
-                                        return elem('li', null, str);
+                                    .map(function(module) {
+                                        return elem('li', null, `${module.identifier} (${module.id})`);
                                     }),
                             ]),
                         ]
