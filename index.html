@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webpack Dependancy Size</title>
+    <link rel="stylesheet" type="text/css" href="./main.css" />
+</head>
+<body>
+
+<div id="root">
+    <table cellpadding="0" cellspacing="0">
+        <thead class="sticky">
+            <tr>
+                <td colspan="9">
+                    <label for="filter-entry-point">Entry Point:</label><select id="filter-entry-point" onchange="updateFilters()"></select>
+                    <div class="hoverTrigger">
+                        Entry Point Graph
+                        <ul class="hoverPanel" id="entry-graph"></ul>
+                    </div>
+                </td>
+            <tr>
+                <th class="hoverTrigger">
+                    <a href="#" onclick="sortBy('niceName')">Module</a>
+                    <div class="hoverPanel">
+                        <label for="filter-niceName-like">Matches RegExp</label>
+                        <code>/<input type="text" id="filter-niceName-like" checked size="80" onchange="updateFilters()" />/</code>
+                    </div>
+                </th>
+
+                <th class="hoverTrigger">
+                    <a href="#" onclick="sortBy('asyncParentCount')">Async Parents</a>
+                    <div class="hoverPanel">
+                        <label for="filter-asyncParentCount-min">Min (bytes)</label>
+                        <input type="number" id="filter-asyncParentCount-min" onchange="updateFilters()" />
+                        <br/>
+                        <label for="filter-asyncParentCount-max">Max (bytes)</label>
+                        <input type="number" id="filter-asyncParentCount-max" onchange="updateFilters()" />
+                    </div>
+                </th>
+                <th class="hoverTrigger">
+                    <a href="#" onclick="sortBy('syncParentCount')">Synchronous Parents</a>
+                    <div class="hoverPanel">
+                        <label for="filter-syncParentCount-min">Min (bytes)</label>
+                        <input type="number" id="filter-syncParentCount-min" onchange="updateFilters()" />
+                        <br/>
+                        <label for="filter-syncParentCount-max">Max (bytes)</label>
+                        <input type="number" id="filter-syncParentCount-max" onchange="updateFilters()" />
+                    </div>
+                </th>
+                <th class="hoverTrigger">
+                    <a href="#" onclick="sortBy('sharedParentCount')">Shared Parents</a>
+                    <div class="hoverPanel">
+                        <label for="filter-sharedParentCount-min">Min (bytes)</label>
+                        <input type="number" id="filter-sharedParentCount-min" onchange="updateFilters()" />
+                        <br/>
+                        <label for="filter-sharedParentCount-max">Max (bytes)</label>
+                        <input type="number" id="filter-sharedParentCount-max" onchange="updateFilters()" />
+                    </div>
+                </th>
+
+                <th class="hoverTrigger">
+                    <a href="#" onclick="sortBy('exclusive')">Exclusive Size</a>
+                    <div class="hoverPanel">
+                        <label for="filter-exclusive-min">Min (bytes)</label>
+                        <input type="number" id="filter-exclusive-min" onchange="updateFilters()" />
+                        <br/>
+                        <label for="filter-exclusive-max">Max (bytes)</label>
+                        <input type="number" id="filter-exclusive-max" onchange="updateFilters()" />
+                    </div>
+                </th>
+
+                <th class="hoverTrigger">
+                    <a href="#" onclick="sortBy('total')">Total Size</a>
+                    <div class="hoverPanel">
+                        <label for="filter-total-min">Min (bytes)</label>
+                        <input type="number" id="filter-total-min" onchange="updateFilters()" />
+                        <br/>
+                        <label for="filter-total-max">Max (bytes)</label>
+                        <input type="number" id="filter-total-max" onchange="updateFilters()" />
+                    </div>
+                </th>
+                <th class="hoverTrigger">
+                    <a href="#" onclick="sortBy('weighted')">Weighted Size</a>
+                    <div class="hoverPanel">
+                        <label for="filter-weighted-min">Min (bytes)</label>
+                        <input type="number" id="filter-weighted-min" onchange="updateFilters()" />
+                        <br/>
+                        <label for="filter-weighted-max">Max (bytes)</label>
+                        <input type="number" id="filter-weighted-max" onchange="updateFilters()" />
+                    </div>
+                </th>
+
+                <th class="hoverTrigger">
+                    <a href="#" onclick="sortBy('dependencyCount')">Dependants</a>
+                    <div class="hoverPanel">
+                        <label for="filter-dependencyCount-min">Min</label>
+                        <input type="number" id="filter-dependencyCount-min" onchange="updateFilters()" />
+                        <br/>
+                        <label for="filter-dependencyCount-max">Max</label>
+                        <input type="number" id="filter-dependencyCount-max" onchange="updateFilters()" />
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody id="data"></tbody>
+    </table>
+
+    <input
+        ref="FileInput"
+        type="file"
+        className="hiddenFileInput"
+        onChange={this.onFileChange}
+    />
+</div>
+
+<script type="text/javascript" src="reader.js"></script>
+<script type="text/javascript" src="fileUpload.js"></script>
+<script type="text/javascript" src="render.js"></script>
+<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript">
+
+addDragDrop(
+    $('root'),
+    function(file) {
+        console.log('got file', file);
+        readFile(file, initFile);
+    }
+);
+
+</script>
+
+<p>
+How to use this tool:
+</p>
+<ol>
+    <li>Generate a stats file from webpack like `webpack --json > stats.json`</li>
+    <li>Then drag-and-drop the stats.json file into the table above.</li>
+    <li>Wait, it's processing</li>
+</ol>
+
+</body>
+</html>

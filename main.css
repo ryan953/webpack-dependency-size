@@ -1,0 +1,63 @@
+
+thead label {
+    display: inline-block;
+    word-wrap: none;
+}
+
+tr:hover {
+    background: #ddd;
+}
+
+th {
+    padding: 10px 5px;
+    border-bottom: 1px solid #ccc;
+}
+td {
+    padding: 4px 2px;
+    border-bottom: 1px solid #eee;
+}
+li {
+    padding: 2px 0;
+}
+
+.hoverTrigger {
+    position: relative;
+}
+.hoverPanel,
+.toolTip {
+    background: white;
+    border: 1px solid black;
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 5px;
+    position: absolute;
+    z-index: 2;
+}
+.hoverPanel {
+    left: 0;
+}
+.toolTip {
+    left: 100%;
+    top: 0;
+}
+
+.hoverTrigger:hover > .hoverPanel,
+.hoverTrigger:hover > .toolTip {
+    display: block;
+}
+
+#entry-graph h5 {
+    margin: 0;
+}
+
+#filter-niceName-like {
+    font-size: 12px;
+}
+
+.sticky {
+    position: sticky;
+    background: white;
+    z-index: 1;
+    top: 0;
+}
