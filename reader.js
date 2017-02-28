@@ -168,7 +168,11 @@ var listModulesWithDirectChildren = (stats, modulesByNamedChunk) => {
 
 function getSizes(moduleWithChildren, sizeOfChildren) {
     const total = moduleWithChildren.size + sizeOfChildren;
-    const weighted = Math.round(total / (moduleWithChildren.sharedParents.length || 1));
+    const weighted = Math.round(total / (
+        moduleWithChildren.sharedParents.length ||
+        moduleWithChildren.entryParents.length ||
+        1
+    ));
 
     return {
         exclusive: moduleWithChildren.size,
