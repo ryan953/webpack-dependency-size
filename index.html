@@ -19,6 +19,13 @@
                 </td>
             <tr>
                 <th class="hoverTrigger">
+                    <a href="#" onclick="sortBy('entry')">Entry</a>
+                    <div class="hoverPanel">
+                        <label for="filter-entry-like">Matches RegExp</label>
+                        <code>/<input type="text" id="filter-entry-like" checked size="80" onchange="updateFilters()" />/</code>
+                    </div>
+                </th>
+                <th class="hoverTrigger">
                     <a href="#" onclick="sortBy('niceName')">Module</a>
                     <div class="hoverPanel">
                         <label for="filter-niceName-like">Matches RegExp</label>

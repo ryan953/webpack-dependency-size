@@ -18,6 +18,32 @@ var getChunkNameToIDMap = (stats) => {
     );
 }
 
+var getChunkIDToNameMap = (stats) => {
+    return getEntryChunks(stats).reduce(
+        (map, chunk) => {
+            chunk.names.forEach(
+                (name) => { map[chunk.id] = name; }
+            );
+            return map;
+        },
+        {}
+    );
+}
+
+var findChunk = function(root, targetID, history) {
+    if (root.id == targetID) {
+        return history;
+    } else {
+        for (var i = 0; i < root.children.length; i++) {
+            var found = findChunk(root.children[i], targetID, history.concat(root.id));
+            if (found) {
+                return found;
+            }
+        }
+    }
+    return null;
+};
+
 function getChildrenForChunk(stats, parentChunk) {
     return getEntryChunks(stats).filter(
         (chunk) => chunk.parents.includes(parentChunk.id)
@@ -31,15 +57,16 @@ function getChildrenForChunk(stats, parentChunk) {
 }
 
 var getEntryHeirarchy = (stats) => {
-    return getEntryChunks(stats).filter(
-        (chunk) => chunk.parents.length == 0
-    ).map(
-        (chunk) => ({
-            id: chunk.id,
-            names: chunk.names,
-            children: getChildrenForChunk(stats, chunk),
-        })
-    );
+    return {
+        id: null,
+        children: getEntryChunks(stats)
+            .filter((chunk) => chunk.parents.length == 0)
+            .map((chunk) => ({
+                id: chunk.id,
+                names: chunk.names,
+                children: getChildrenForChunk(stats, chunk),
+            })),
+    };
 }
 
 function getModulesByChunk(stats) {

@@ -59,6 +59,10 @@ function readFilterValues() {
         // showNonPromiseLoaded: $('filter-isPromiseLoaded-dependants').checked,
         entryPoint: $('filter-entry-point').value,
 
+        entryNameContains: $('filter-entry-like').value !== ''
+            ? new RegExp($('filter-entry-like').value)
+            : null,
+
         nameContains: $('filter-niceName-like').value !== ''
             ? new RegExp($('filter-niceName-like').value)
             : null,
@@ -108,6 +112,13 @@ function updateFilters() {
     window._filters = [
         // makeBoolMatrix('isEntry', settings.showEntries, settings.showNonEntries),
         // makeBoolMatrix('isPromiseLoaded', settings.showPromiseLoaded, settings.showNonPromiseLoaded),
+
+        function(record) {
+            if (settings.entryNameContains && !settings.entryNameContains.test(record.niceName)) {
+                return false;
+            }
+            return true;
+        },
 
         function(record) {
             if (settings.nameContains && !settings.nameContains.test(record.niceName)) {
@@ -178,7 +189,7 @@ function _elemAddChildren(el, children) {
 function renderEntryGraph(processedData) {
     var root = $('entry-graph');
 
-    processedData.chunksByParent
+    processedData.chunksByParent.children
         .map(renderEntryGraphNode)
         .forEach(function(node) {
             root.appendChild(node);
@@ -189,7 +200,7 @@ function renderEntryGraphNode(chunk) {
     var children = chunk.children.map(renderEntryGraphNode);
 
     return elem('li', null, [
-        elem('h5', null, [chunk.names.join(', ')]),
+        elem('h5', null, [`${chunk.names.join(', ')} (${chunk.id})`]),
         elem('ul', null, children),
     ]);
 }
@@ -197,9 +208,9 @@ function renderEntryGraphNode(chunk) {
 function renderEntrySelector(data) {
     var root = $('filter-entry-point');
     var chunkNames = Object.keys(data.chunkNames);
+    chunkNames.sort();
 
-    var defaultID = data.chunksByParent[0].id;
-    console.log('defaultID', defaultID);
+    var defaultID = data.chunksByParent.children[0].id;
     chunkNames.forEach(function(chunkName, i) {
         var chunkID = data.chunkNames[chunkName];
         root.appendChild(
@@ -216,12 +227,27 @@ function renderTable() {
         return;
     }
 
-    var data = window._formattedData[window._filterSettings.entryPoint];
+    var interestingEntries = window._entryParents[window._filterSettings.entryPoint]
+        .concat(window._filterSettings.entryPoint);
+    var data = [];
+    interestingEntries.forEach(function(entryID) {
+        data = data.concat(
+            window._formattedData[entryID]
+                .map(function(record) {
+                    return Object.assign({}, record, {
+                        entryID: entryID,
+                        entry: window._processedData.chunkIDs[entryID],
+                    });
+                })
+        );
+    });
+
     var sortBy = window._sortBy;
     var sortDirection = window._sortDirection;
     var filters = window._filters;
 
     switch (sortBy) {
+        case 'entry':
         case 'niceName':
         case 'syncParentCount':
         case 'asyncParentCount':
@@ -254,11 +280,16 @@ function renderTable() {
                 null,
                 [
                     elem('td', {class: 'hoverTrigger'}, [
+                        record.entryID,
+                        elem('div', {class: 'hoverPanel'}, record.entry),
+                    ]),
+                    elem('td', {class: 'hoverTrigger'}, [
                         elem('a', {
                             href: 'https://phabricator.pinadmin.com/diffusion/P/browse/master/' + record.niceName,
                         }, record.niceName),
                         elem('div', {class: 'hoverPanel'}, [record.name])
                     ]),
+
                     elem(
                         'td',
                         {class: 'hoverTrigger'},

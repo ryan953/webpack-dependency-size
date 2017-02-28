@@ -7,6 +7,7 @@ function initFile(jsonText) {
 
     renderData({
         chunkNames: getChunkNameToIDMap(stats),
+        chunkIDs: getChunkIDToNameMap(stats),
         chunksWithNames: getEntryChunks(stats),
         chunksByParent: getEntryHeirarchy(stats),
         modulesByNamedChunk: _modulesByNamedChunk,
@@ -17,9 +18,13 @@ function initFile(jsonText) {
 
 
 function renderData(processedData) {
+    window._entryParents = {};
     window._formattedData = {};
+    window._processedData = processedData;
 
     processedData.modulesByNamedChunk.forEach(function(chunk) {
+        var chunkParents = findChunk(processedData.chunksByParent, chunk.id, []);
+        window._entryParents[chunk.id] = chunkParents ? chunkParents.filter(_ => _) : null;
         window._formattedData[chunk.id] = chunk.modules.map(function(name) {
             var withChildren = processedData._modulesWithChildren.filter(function(moduleWithChildren) {
                 return moduleWithChildren.identifier == name;
